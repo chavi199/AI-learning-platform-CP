@@ -1,0 +1,21 @@
+import jwt from "jsonwebtoken";
+import type { Request, Response, NextFunction } from "express";
+
+export interface AuthRequest extends Request {
+  userId?: string;
+}
+
+const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction): void => {
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    res.status(401).json({ message: "No token provided" });
+    return;
+  }
+
+  const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as { userId: string };
+  req.userId = decoded.userId;
+  next();
+};
+
+export default authMiddleware;
