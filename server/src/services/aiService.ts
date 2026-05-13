@@ -18,8 +18,21 @@ export interface LessonResponse {
   quiz: [QuizQuestion, QuizQuestion, QuizQuestion];
 }
 
+// Detect if text contains Hebrew
+const isHebrewText = (text: string): boolean => {
+  const hebrewRegex = /[\u0590-\u05FF]/g;
+  return hebrewRegex.test(text);
+};
+
 export const generateLesson = async (topic: string, categoryName: string, subCategoryName: string): Promise<LessonResponse> => {
   console.log("📚 generateLesson called with:", { topic, categoryName, subCategoryName });
+  
+  const isHebrew = isHebrewText(topic) || isHebrewText(categoryName) || isHebrewText(subCategoryName);
+  const languageInstructions = isHebrew 
+    ? "Respond in Hebrew. All content including title, lesson content, and quiz questions/options must be in Hebrew."
+    : "Respond in English. All content including title, lesson content, and quiz questions/options must be in English.";
+  
+  console.log("🌍 Detected language:", isHebrew ? "Hebrew" : "English");
   
   try {
     console.log("🔄 Calling OpenAI API via Axios...");
@@ -31,7 +44,7 @@ export const generateLesson = async (topic: string, categoryName: string, subCat
         messages: [
           {
             role: "system",
-            content: "You are an educational AI. Always respond with valid JSON only, no extra text.",
+            content: `You are an educational AI. Always respond with valid JSON only, no extra text. ${languageInstructions}`,
           },
           {
             role: "user",
