@@ -71,6 +71,23 @@
    - Backend API: http://localhost:5000
    - MongoDB: mongodb://localhost:27017
 
+5. **Seed the Database with Categories**
+   
+   After containers are running, populate the database with educational categories:
+   ```bash
+   docker-compose exec -T server npm run seed-categories
+   ```
+   
+   This will create:
+   - 10 Categories: Software Development, Exact Sciences, Languages, Business, Cyber Security, Data Science, Psychology, History, Photography, Cooking
+   - 25 Sub-Categories with proper relationships to their parent categories
+   
+   The seed script will:
+   - Delete existing categories to avoid duplicates
+   - Create all categories first
+   - Link sub-categories with correct category IDs
+   - Display a summary of created data
+
 ## Running the Project
 
 ### Development Mode (with Docker)
@@ -78,6 +95,9 @@
 ```bash
 # Start all services
 docker-compose up -d --build
+
+# Seed the database with categories (run once after setup)
+docker-compose exec -T server npm run seed-categories
 
 # View logs
 docker-compose logs -f server
@@ -94,6 +114,9 @@ Backend:
 cd server
 npm install
 npm run dev
+
+# In another terminal, seed the database:
+npm run seed-categories
 ```
 
 Frontend:
@@ -102,6 +125,8 @@ cd frontend
 npm install
 npm run dev
 ```
+
+**Note:** Requires MongoDB running locally on `mongodb://localhost:27017`
 
 ## Project Structure
 
@@ -123,10 +148,69 @@ AI-learning-platform-CP/
 │   │   ├── routes/         # API routes
 │   │   ├── middleware/     # Custom middleware
 │   │   ├── services/       # Business logic
+│   │   ├── scripts/        # Utility scripts (seeding, admin creation)
 │   │   └── app.ts          # Express setup
 │   └── package.json
 │
 └── docker-compose.yml
+```
+
+## Available Scripts
+
+### Server Scripts (Backend)
+
+```bash
+cd server
+
+# Start development server with auto-reload
+npm run dev
+
+# Seed database with categories and sub-categories
+npm run seed-categories
+
+# Create an admin user
+npm run create-admin
+
+# Run tests
+npm test
+```
+
+### Frontend Scripts
+
+```bash
+cd frontend
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Run ESLint
+npm run lint
+```
+
+### Docker Commands
+
+```bash
+# From project root
+
+# Build and start all services
+docker-compose up -d --build
+
+# Stop all services
+docker-compose down
+
+# View logs for specific service
+docker-compose logs -f server
+docker-compose logs -f frontend
+docker-compose logs -f mongodb
+
+# Execute command in running container
+docker-compose exec -T server npm run seed-categories
 ```
 
 ## API Documentation
