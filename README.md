@@ -52,7 +52,7 @@
 
 2. **Configure Environment Variables**
    
-   Create a `.env` file in the `server` folder:
+   Create a `.env` file in the `server` folder with these required variables:
    ```env
    PORT=5000
    MONGO_URI=mongodb://mongodb:27017/ai_learning_platform
@@ -60,6 +60,13 @@
    OPENAI_API_KEY=your_openai_api_key_here
    NODE_TLS_REJECT_UNAUTHORIZED=0
    ```
+   
+   **Environment Variables Explanation:**
+   - `PORT`: Server port (default: 5000)
+   - `MONGO_URI`: MongoDB connection string
+   - `JWT_SECRET`: Secret key for JWT token signing (use a strong random string)
+   - `OPENAI_API_KEY`: Your OpenAI API key (get it from https://platform.openai.com/account/api-keys)
+   - `NODE_TLS_REJECT_UNAUTHORIZED`: Set to 0 for development (not for production)
 
 3. **Build and start the application**
    ```bash
@@ -88,7 +95,47 @@
    - Link sub-categories with correct category IDs
    - Display a summary of created data
 
+6. **Create an Admin User**
+   
+   To create your first admin user, run:
+   ```bash
+   docker-compose exec -T server npm run create-admin
+   ```
+   
+   This will prompt you to enter:
+   - Email address (for admin login)
+   - Password (use a strong password)
+   
+   After creation, you can log in with these credentials at **http://localhost:5173**
+
 ## Running the Project
+
+### Quick Start (5 minutes)
+
+**For first-time setup, follow these steps in order:**
+
+```bash
+# 1. Clone and navigate to project
+git clone <repository-url>
+cd AI-learning-platform-CP
+
+# 2. Create .env file in server folder (see step 2 in Installation & Setup)
+
+# 3. Start all Docker containers
+docker-compose up -d --build
+
+# 4. Seed the database (wait ~30 seconds for MongoDB to be ready)
+docker-compose exec -T server npm run seed-categories
+
+# 5. Create your admin account
+docker-compose exec -T server npm run create-admin
+
+# 6. Open browser and access:
+# Frontend: http://localhost:5173
+# Backend: http://localhost:5000
+```
+
+Now you're ready! Log in with your admin credentials and start managing categories.
 
 ### Development Mode (with Docker)
 
@@ -285,6 +332,53 @@ docker-compose exec -T server npm run seed-categories
 - View platform statistics
 - All regular user permissions
 
+## Admin Access
+
+### Creating Admin Users
+
+There are two ways to create an admin user:
+
+**Option 1: Using the seed script (Recommended)**
+```bash
+docker-compose exec -T server npm run create-admin
+```
+
+This interactive script will:
+1. Prompt for admin email
+2. Prompt for admin password
+3. Create the admin user in MongoDB
+
+**Option 2: Direct MongoDB access**
+Use MongoDB tools to insert a user document with `role: "admin"`
+
+### Admin Dashboard Features
+
+Once logged in as an admin, you can:
+
+1. **Manage Categories**
+   - View all categories
+   - Create new categories
+   - Update category details
+   - Delete categories
+
+2. **Manage Sub-Categories**
+   - View/edit sub-categories
+   - Assign sub-categories to categories
+   - Delete sub-categories
+
+3. **View Statistics**
+   - Total users count
+   - Total lessons generated
+   - Platform usage metrics
+
+### Admin Login
+
+1. Go to **http://localhost:5173**
+2. Click on "Login"
+3. Enter your admin email and password
+4. You'll be automatically redirected to the Admin Dashboard
+5. You can now manage categories and view statistics
+
 ## Troubleshooting
 
 ### OpenAI API Error (403)
@@ -302,6 +396,32 @@ docker-compose exec -T server npm run seed-categories
 ### Frontend Cannot Connect to Backend
 - Check URL in `frontend/src/api/axios.ts`
 - Ensure backend is running on port 5000
+
+### Admin Creation Failed
+- Verify MongoDB is running: `docker-compose logs mongodb`
+- Check server logs: `docker-compose logs server`
+- Ensure `.env` file exists with correct `MONGO_URI`
+
+### Categories Not Showing
+- Run: `docker-compose exec -T server npm run seed-categories`
+- Wait a few seconds for the script to complete
+- Refresh the browser
+
+## FAQ
+
+**Q: I forgot my admin password. What do I do?**
+- Connect to MongoDB directly and delete the admin user
+- Then run `npm run create-admin` again to create a new admin
+
+**Q: Can I use a different database instead of MongoDB?**
+- Currently, the project is configured for MongoDB with Mongoose
+- To use another database, you would need to rewrite the models action logic
+
+**Q: How do I deploy this to production?**
+- Remove `NODE_TLS_REJECT_UNAUTHORIZED=0` from `.env`
+- Use proper secrets management (avoid hardcoding API keys)
+- Configure proper MongoDB Atlas connection string
+- Deploy using services like Heroku, Railway, or AWS
 
 ## License
 
